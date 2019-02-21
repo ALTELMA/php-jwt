@@ -14,6 +14,11 @@ class JWTService
      */
     private $publicKey;
 
+    /**
+     * JWTService constructor.
+     * @param $privateKey
+     * @param $publicKey
+     */
     public function __construct($privateKey, $publicKey)
     {
         $this->privateKey = file_get_contents($privateKey);

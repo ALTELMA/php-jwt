@@ -13,7 +13,9 @@ class JWTServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->publishes([
+            __DIR__.'/../config/jwt.php' => config_path('jwt.php'),
+        ], 'jwt');
     }
 
     /**
@@ -23,8 +25,14 @@ class JWTServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->mergeConfigFrom( __DIR__.'/../config/jwt.php', 'jwt');
+
         $this->app->singleton('jwt', function ($app) {
-            return new JWTService();
+            $config = $app->make('config');
+            $privateKey = $config->get('jwt.private_key');
+            $publicKey = $config->get('jwt.public_key');
+
+            return new JWTService($privateKey, $publicKey);
         });
     }
 

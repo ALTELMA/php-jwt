@@ -5,6 +5,22 @@ namespace Altelma\JWT;
 class JWTService
 {
     /**
+     * @var $privateKey
+     */
+    private $privateKey;
+
+    /**
+     * @var $publicKey
+     */
+    private $publicKey;
+
+    public function __construct($privateKey, $publicKey)
+    {
+        $this->privateKey = file_get_contents($privateKey);
+        $this->publicKey = file_get_contents($publicKey);
+    }
+
+    /**
      * @param string $data
      * @return string
      */
@@ -32,29 +48,19 @@ class JWTService
      * @param string $alGoRiThm
      * @param array $header
      * @param array $payload
-     * @param string $privateKeyFile
      * @return string
      */
-    public function generate(
-        string $alGoRiThm,
-        array $header,
-        array $payload,
-        string $privateKeyFile
-    ): string {
+    public function generate(string $alGoRiThm, array $header, array $payload): string {
+
         $headerEncoded = $this->base64UrlEncode(json_encode($header));
-
         $payloadEncoded = $this->base64UrlEncode(json_encode($payload));
-
-        // Delimit with period (.)
         $dataEncoded = "$headerEncoded.$payloadEncoded";
-
-        $privateKeyResource = openssl_pkey_get_private($privateKeyFile);
-
+        $privateKeyResource = openssl_pkey_get_private($this->privateKey);
         $result = openssl_sign($dataEncoded, $signature, $privateKeyResource, $alGoRiThm);
 
         if ($result === false) {
             throw new \RuntimeException(
-                "Failed to generate signature: ".implode("\n", getOpenSSLErrors())
+                "Failed to generate signature: ".implode("\n", $this->getOpenSSLErrors())
             );
         }
 
@@ -68,19 +74,15 @@ class JWTService
     /**
      * @param string $alGoRiThm
      * @param string $jwt
-     * @param string $publicKeyFile
      * @return bool
      */
-    public function verify(string $alGoRiThm, string $jwt, string $publicKeyFile): bool
+    public function verify(string $alGoRiThm, string $jwt): bool
     {
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $jwt);
 
         $dataEncoded = "$headerEncoded.$payloadEncoded";
-
         $signature = $this->base64UrlDecode($signatureEncoded);
-
-        $publicKeyResource = openssl_pkey_get_public($publicKeyFile);
-
+        $publicKeyResource = openssl_pkey_get_public($this->publicKey);
         $result = openssl_verify($dataEncoded, $signature, $publicKeyResource, $alGoRiThm);
 
         if ($result === -1)  {
@@ -90,5 +92,19 @@ class JWTService
         }
 
         return (bool) $result;
+    }
+
+    /**
+     * @return array
+     */
+    private function getOpenSSLErrors()
+    {
+        $messages = [];
+
+        while ($msg = openssl_error_string()) {
+            $messages[] = $msg;
+        }
+
+        return $messages;
     }
 }

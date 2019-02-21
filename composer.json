@@ -1,0 +1,27 @@
+{
+    "name": "altelma/php-jwt",
+    "description": "Creating and Verifying JWT Signatures in PHP using HS256 and RS256.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "JWT",
+            "email": "nrohtgnohp@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+          "Altelma\\JWT\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Altelma\\JWT\\JWTServiceProvider"
+            ],
+            "aliases": {
+                "JWT": "Altelma\\JWT\\JWTFacade"
+            }
+        }
+    }
+}

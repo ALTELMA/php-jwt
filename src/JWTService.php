@@ -21,8 +21,8 @@ class JWTService
      */
     public function __construct($privateKey, $publicKey)
     {
-        $this->privateKey = file_get_contents($privateKey);
-        $this->publicKey = file_get_contents($publicKey);
+        $this->privateKey = !empty($privateKey) ? file_get_contents($privateKey) : null;
+        $this->publicKey = !empty($publicKey) ? file_get_contents($publicKey) : null;
     }
 
     /**
@@ -55,7 +55,11 @@ class JWTService
      * @param array $payload
      * @return string
      */
-    public function generate(string $alGoRiThm, array $header, array $payload): string {
+    public function generate(string $alGoRiThm, array $header, array $payload): string
+    {
+        if (empty($this->privateKey))  {
+            throw new \RuntimeException("Failed to generate signature: No private key");
+        }
 
         $headerEncoded = $this->base64UrlEncode(json_encode($header));
         $payloadEncoded = $this->base64UrlEncode(json_encode($payload));
@@ -83,6 +87,10 @@ class JWTService
      */
     public function verify(string $alGoRiThm, string $jwt): bool
     {
+        if (empty($this->publicKey))  {
+            throw new \RuntimeException("Failed to verify signature: No public key");
+        }
+
         list($headerEncoded, $payloadEncoded, $signatureEncoded) = explode('.', $jwt);
 
         $dataEncoded = "$headerEncoded.$payloadEncoded";

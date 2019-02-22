@@ -81,8 +81,7 @@ class JwtController extends Controller
     public function verifyJwt()
     {
         $jwtToken = $this->getJWT();
-        $publicKeyFile = file_get_contents(storage_path('publickey.pub'));
-        $verifyToken = \JWT::verify('sha256', $jwtToken, $publicKeyFile);
+        $verifyToken = \JWT::verify('sha256', $jwtToken);
 
         return ['success' => $verifyToken];
     }
@@ -100,9 +99,7 @@ class JwtController extends Controller
             "admin"        => true
         ];
 
-        $privateKeyFile = file_get_contents(storage_path('privatekey.rsa'));
-
-        echo(\JWT::generate('sha256', $header, $payload, $privateKeyFile));
+        return ['success' => true, 'access_token' => \JWT::generate('sha256', $header, $payload)];
     }
 }
 ```

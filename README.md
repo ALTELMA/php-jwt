@@ -37,7 +37,7 @@ $app->register(Altelma\JWT\JWTServiceProvider::class);
 - Add config to `bootstrap/app.php`
 
 ```php
-$app->configure('jqt');
+$app->configure('jwt');
 ```
 - Allow call package via Facade, uncomment
 ```php

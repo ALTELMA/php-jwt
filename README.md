@@ -80,7 +80,7 @@ class JwtController extends Controller
 
     public function verifyJwt()
     {
-        $jwtToken = $this->getJWT();
+        $jwtToken = 'YOUR_JWT_TOKEN';
         $verifyToken = \JWT::verify('sha256', $jwtToken);
 
         return ['success' => $verifyToken];
